@@ -1,3 +1,4 @@
 .env
 Steps to follow.pdf
-__MACOSX
+node_modules
+package-lock.json
