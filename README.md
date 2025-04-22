@@ -1,65 +1,38 @@
+# 💰 Fullstack Expense Tracker (MERN + Docker)
 
-# 💸 Expense Tracker App (MERN Stack)
+This is a full-stack **Expense Tracker** application built with the **MERN stack** (MongoDB, Express, React, Node.js) and fully dockerized using **Docker & Docker Compose**.
 
-A full-featured Expense Tracker built with the **MERN stack** — MongoDB, Express.js, React, and Node.js. This app allows users to track income, expenses, and view insights through dynamic charts.
-
----
-
-## 🚀 Features
-
-- 👤 User authentication (JWT-based)
-- 💾 MongoDB data persistence
-- 💸 Track income and expenses with descriptions, categories & dates
-- 📊 Visual charts and stats (using Recharts)
-- 🧠 Context API for global state management
-- 📁 File upload support (profile pictures)
-- 📤 Export to Excel (via `xlsx`)
-- ⚡ Fast frontend powered by **Vite + React + TailwindCSS**
+It allows users to track income and expenses through a clean and modern interface, with persistent data stored in MongoDB.
 
 ---
 
-## 🛠️ Tech Stack
+## 📦 Tech Stack
 
-| Tech             | Used For             |
-|------------------|----------------------|
-| MongoDB          | Database             |
-| Express.js       | Backend framework    |
-| React + Vite     | Frontend framework   |
-| Node.js          | Backend runtime      |
-| TailwindCSS      | UI styling           |
-| Recharts         | Data visualizations  |
-| Multer           | File uploads         |
-| JWT              | Auth & security      |
+- **MongoDB** – NoSQL database
+- **Express.js** – Backend API
+- **React.js (Vite)** – Frontend UI
+- **Node.js** – Runtime environment
+- **Docker** – Containerization
+- **Docker Compose** – Orchestration
 
 ---
 
-## 📁 Project Structure
+## 📁 Folder Structure
 
 ```
-expense-tracker-app/
-├── backend/
-│   ├── controllers/
-│   ├── routes/
-│   ├── models/
-│   ├── middleware/
-│   ├── config/
-│   ├── uploads/
-│   ├── .env
-│   └── server.js
-└── frontend/
-    └── expense-tracker/
-        ├── public/
-        ├── src/
-        │   ├── components/
-        │   ├── pages/
-        │   ├── hooks/
-        │   ├── utils/
-        │   └── context/
+fullstack-expense-tracker/
+├── backend/                    # Express.js API
+│   └── Dockerfile
+├── frontend/
+│   └── expense-tracker/       # Vite + React app
+│       └── Dockerfile
+├── docker-compose.yml         # Full app orchestration
+└── README.md
 ```
 
 ---
 
-## ⚙️ Getting Started
+## 🚀 Getting Started
 
 ### 1. Clone the Repository
 
@@ -68,69 +41,125 @@ git clone https://github.com/AcheampongStephen/fullstack-expense-tracker.git
 cd fullstack-expense-tracker
 ```
 
-### 2. Setup Backend
+---
+
+### 2. Run with Docker Compose
 
 ```bash
-cd backend
-npm install
-cp .env.example .env   # Set your MongoDB URI and JWT_SECRET
-npm run dev            # Starts the server using nodemon
+docker-compose up --build -d
 ```
 
-### 3. Setup Frontend
+This will:
+
+- Build both frontend and backend Docker images
+- Start MongoDB with a persistent volume
+- Connect all services on the same custom Docker network (`expense`)
+- Expose:
+  - Frontend on `http://localhost:5173`
+  - Backend API on `http://localhost:8000`
+  - MongoDB (internally) as `mongodb://mongodb:27017`
+
+---
+
+## 🧪 Local Testing URLs
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+
+**Note**: Ensure API calls from the frontend are pointing to `http://backend:8000` inside the container network (use `.env` or Vite proxy).
+
+---
+
+## 🐳 Docker Overview
+
+### Backend Dockerfile
+
+```Dockerfile
+FROM node:18.9.1
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 8000
+CMD ["npm", "start"]
+```
+
+### Frontend Dockerfile (Vite)
+
+```Dockerfile
+FROM node:18.9.1
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 5173
+CMD ["npm", "run", "dev"]
+```
+
+### Docker Compose File
+
+```yaml
+version: "3.8"
+
+services:
+  frontend:
+    build: frontend/expense-tracker
+    ports:
+      - "5173:5173"
+    networks:
+      - expense
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    networks:
+      - expense
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - expense
+
+networks:
+  expense:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+```
+
+---
+
+## 🧹 Clean Up
 
 ```bash
-cd frontend/expense-tracker
-npm install
-npm run dev            # Starts Vite development server
+docker-compose down
+docker volume rm fullstack-expense-tracker_mongo-data
 ```
 
 ---
 
-## 🔐 Environment Variables
+## 🙋 Author
 
-In `backend/.env`:
-
-```
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-PORT=5000
-```
+**Stephen Acheampong**  
+🔗 GitHub: [@AcheampongStephen](https://github.com/AcheampongStephen)
 
 ---
 
-## 📦 Backend Scripts
+## 📄 License
 
-| Script     | Purpose                 |
-|------------|-------------------------|
-| `npm start` | Start server (production) |
-| `npm run dev` | Start server with Nodemon |
+Licensed under the [MIT License](LICENSE).
 
 ---
 
-## 🧪 Frontend Scripts
+## ⭐️ Support
 
-| Script        | Purpose                        |
-|---------------|--------------------------------|
-| `npm run dev` | Run Vite dev server            |
-| `npm run build` | Build for production         |
-| `npm run preview` | Preview production build   |
-| `npm run lint` | Lint project using ESLint     |
-
----
-
-## 📷 Screenshots
-
-> _You can include screenshots or GIFs of the dashboard, charts, or login flow here._
-
----
-
-## 📝 License
-
-This project is licensed under the **ISC License**.
-
----
-
-## 🙌 Credits
-
-Built by **Stephen Acheampong** – contributions welcome!
+If you find this project helpful, please ⭐️ the repo and share it!

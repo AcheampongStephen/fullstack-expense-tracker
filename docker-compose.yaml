@@ -1,0 +1,36 @@
+services:
+  frontend:
+    build: frontend/expense-tracker
+    ports:
+      - "5173:5173"
+    networks:
+      - expense
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    networks:
+      - expense
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - expense
+    volumes:
+      - mongo-data:/data/db
+
+
+networks:
+  expense:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+
+
